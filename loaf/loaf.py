@@ -9,17 +9,12 @@ creds_ = ""
 
 # Make this differently, for the love of god!
 def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_):
-    global host_
+    global host_, port_, user_, pasw_, db_, creds_
     if host != "": host_=host
-    global port_
     if port != "": port_=port
-    global user_
     if user != "": user_=user
-    global pasw_
     if pasw != "": pasw_=pasw
-    global db_
     if db != "": db_=db
-    global creds_
     if creds != "": creds_=creds
 
 # A query.

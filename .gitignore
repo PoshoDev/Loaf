@@ -2,6 +2,6 @@
 **/__pycache__
 **/build
 **/dist
-**/Loaf.egg-info
+**/loaf.egg-info
 _creds.py
 test.py
