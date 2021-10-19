@@ -16,7 +16,7 @@ $ pip install loaf
 ## Sample Demo
 
 ```python
-import Loaf # Don't forget the uppercase 'L'!
+import loaf
 
 # Setup your credentials with a single line.
 Loaf.bake(port=6969, db="pizzeria")
