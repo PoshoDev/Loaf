@@ -1,16 +1,38 @@
 import pymysql, datetime, socket
 
-host = socket.gethostbyname(socket.gethostname)
-port = 80 # Default XAMPP Apache server port.
-user = "root"
-pasw = ""
-db = None
-creds = ""
+host_ = socket.gethostbyname(socket.gethostname())
+port_ = 80 # Default XAMPP Apache server port.
+user_ = "root"
+pasw_ = ""
+db_ = None
+creds_ = ""
 
-def bake(host=host, port=port, user=user, pasw=pasw, db=db, creds=creds):
-    return "lol"
+# Make this differently, for the love of god.
+def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_):
+    global host_
+    if host != "": host_=host
+    global port_
+    if port != "": port_=port
+    global user_
+    if user != "": user_=user
+    global pasw_
+    if pasw != "": pasw_=pasw
+    global db_
+    if db != "": db_=db
+    global creds_
+    if creds != "": creds_=creds
 
-# Easier on the eyes.
+# A query.
+def query(query):
+    conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
+    conn_object = conn.cursor()
+    conn_object.execute(query)
+    str = conn_object.fetchall()
+    conn.commit()
+    conn.close()
+    return str
+
+# Call a stored procedure.
 def call(func, *args):
     call = "CALL " + func + "("
     if len(args) > 0:
@@ -20,15 +42,9 @@ def call(func, *args):
     q = query(call)
     return q[0][0] if len(q)==1 else q
 
-# A query.
-def query(query):
-    conn = pymysql.connect(host=host, port=port, user=user, passwd=pasw, db=db)
-    conn_object = conn.cursor()
-    conn_object.execute(query)
-    str = conn_object.fetchall()
-    conn.commit()
-    conn.close()
-    return str
+# Quick query.
+def all(table):
+    return query(f"SELECT * from {table};")
 
 def getToday():
     dat = datetime.date.today() + datetime.timedelta(days=1)

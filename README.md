@@ -30,15 +30,18 @@ import Loaf
 import Loaf
 
 # Setup your credentials with a single line.
-Loaf.start(port=6969, db="pizzeria")
+Loaf.bake(port=6969, db="pizzeria")
 
 # Make a query easily.
 result = Loaf.query("SELECT * from toppings")
 print(result)
 
+# Not lazy enough? Try some of the pre-built queires.
+result = Loaf.all("toppings")
+print(result)
+
 # Got stored procedures? No problemo!
 result = Loaf.call("ProcedureFindClient", 1)
 print(result)
-
 ```
 
