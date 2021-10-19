@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 DESCRIPTION = 'Effortlessly access your MySQL server and procedures, plus some other utilities!'
 with open('README.md', encoding="utf8") as f:
     LONG_DESCRIPTION = f.read()
 
 # Setting up
 setup(
-    name="Loaf",
+    name="loaf",
     version=VERSION,
     author="Posho (Rodrigo Gómez Maitret)",
     author_email="<rodrigo.g.maitret@gmail.com>",
