@@ -1,4 +1,6 @@
 # 🍞 Loaf
+### *So bland yet so good!™*
+
 Effortlessly access your MySQL server and procedures, plus some other utilities.
 
 
@@ -28,7 +30,7 @@ import Loaf
 import Loaf
 
 # Setup your credentials with a single line.
-Loaf.start(port=3306, db="pizzeria")
+Loaf.start(port=6969, db="pizzeria")
 
 # Make a query easily.
 result = Loaf.query("SELECT * from toppings")
