@@ -8,7 +8,7 @@ Effortlessly access your MySQL server and procedures, plus some other utilities.
 ## Install
 
 ```
-$ pip install Loaf
+$ pip install loaf
 ```
 
 
@@ -36,5 +36,5 @@ print(result)
 
 
 
-![]()
+![](https://github.com/PoshoDev/Loaf/blob/main/loaf.png?raw=true)
 
