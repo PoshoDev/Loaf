@@ -19,18 +19,18 @@ $ pip install loaf
 import loaf
 
 # Setup your credentials with a single line.
-Loaf.bake(port=6969, db="pizzeria")
+loaf.bake(port=6969, db="pizzeria")
 
 # Make a query easily.
-result = Loaf.query("SELECT * from toppings")
+result = loaf.query("SELECT * from toppings")
 print(result)
 
 # Not lazy enough? Try some of the pre-built queires.
-result = Loaf.all("toppings")
+result = loaf.all("toppings")
 print(result)
 
 # Got stored procedures? No problemo!
-result = Loaf.call("ProcedureFindClient", 1)
+result = loaf.call("ProcedureFindClient", 1)
 print(result)
 ```
 
