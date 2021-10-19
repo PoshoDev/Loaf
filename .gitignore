@@ -1,4 +1,7 @@
 **/_Ignore
 **/__pycache__
+**/build
+**/dist
+**/Loaf.egg-info
 _creds.py
 test.py

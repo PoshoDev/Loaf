@@ -7,19 +7,8 @@ Effortlessly access your MySQL server and procedures, plus some other utilities.
 
 ## Install
 
-This isn't a Python package yet so you'd need to do this very archaically for now, lmao.
-
-You need to install the following:
-
 ```
-$ pip install pymysql
-$ pip install datetime
-```
-
- Then simply download *LazyDB.py* and put it in your project's directory, then use the good ol' *import*:
-
-```python
-import Loaf
+$ pip install Loaf
 ```
 
 
@@ -27,7 +16,7 @@ import Loaf
 ## Sample Demo
 
 ```python
-import Loaf
+import Loaf # Don't forget the uppercase 'L'!
 
 # Setup your credentials with a single line.
 Loaf.bake(port=6969, db="pizzeria")
@@ -44,4 +33,8 @@ print(result)
 result = Loaf.call("ProcedureFindClient", 1)
 print(result)
 ```
+
+
+
+![]()
 
