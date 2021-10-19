@@ -7,7 +7,7 @@ pasw_ = ""
 db_ = None
 creds_ = ""
 
-# Make this differently, for the love of god.
+# Make this differently, for the love of god!
 def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_):
     global host_
     if host != "": host_=host
