@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.10'
+VERSION = '0.1.11'
 DESCRIPTION = 'Effortlessly access your MySQL server and procedures, plus some other utilities!'
 with open('README.md', encoding="utf8") as f:
     LONG_DESCRIPTION = f.read()
