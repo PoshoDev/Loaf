@@ -35,7 +35,7 @@ def call(func, *args):
             call += (str(args[i]) if type(args[i])==type(1) else parseNull(args[i])) + (", " if i<len(args)-1 else ");")
     else: call += ");"
     q = query(call)
-    return q[0][0] if len(q)==1 else q
+    return q[0][0] if (len(q)==1 and len(q[0])==1) else q
 
 # Quick query.
 def all(table):
