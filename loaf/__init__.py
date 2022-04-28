@@ -1,4 +1,4 @@
-import pymysql, datetime, socket
+import pymysql, psycopg2, datetime, socket
 
 host_ = socket.gethostbyname(socket.gethostname())
 port_ = 80 # Default XAMPP Apache server port.
@@ -7,10 +7,11 @@ pasw_ = ""
 db_ = None
 creds_ = ""
 cursor_ = "DEFAULT"
+mode_ = "MySQL"
 
 # Make this differently, for the love of god!
-def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, cursor=cursor_):
-    global host_, port_, user_, pasw_, db_, creds_, cursor_
+def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, cursor=cursor_, mode=mode_):
+    global host_, port_, user_, pasw_, db_, creds_, cursor_, mode_
     if host != "": host_=host
     if port != "": port_=port
     if user != "": user_=user
@@ -18,10 +19,14 @@ def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, c
     if db != "": db_=db
     if creds != "": creds_=creds
     if cursor != "": cursor_=cursor
+    if mode != "": mode_=mode
 
 # A query.
 def query(query):
-    conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
+    if (mode_ == "MySQL"):
+        conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
+    elif (mode_ == "PostgreSQL"):
+        conn = psycopg2.connect(host=host_, port=port_, user=user_, password=pasw_, database=db_)
     conn_object = conn.cursor(pymysql.cursors.DictCursor) if cursor_=="DICTIONARY" else conn.cursor()
     conn_object.execute(query)
     response = conn_object.fetchall()
@@ -29,6 +34,18 @@ def query(query):
     conn.commit()
     conn.close()
     return response
+
+# Test your connection with your database.
+def test():
+    try:
+        if (mode_ == "MySQL"):
+            conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
+        elif (mode_ == "PostgreSQL"):
+            conn = psycopg2.connect(host=host_, port=port_, user=user_, password=pasw_, database=db_)
+        print(f"Successful connection at: {host_}")
+    except Exception as ex:
+        print(f"Connection error at: {host_}")
+        print(ex)
 
 # Call a stored procedure.
 def call(func, *args):
