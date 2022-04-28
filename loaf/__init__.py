@@ -6,26 +6,29 @@ user_ = "root"
 pasw_ = ""
 db_ = None
 creds_ = ""
+cursor_ = "DEFAULT"
 
 # Make this differently, for the love of god!
-def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_):
-    global host_, port_, user_, pasw_, db_, creds_
+def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, cursor=cursor_):
+    global host_, port_, user_, pasw_, db_, creds_, cursor_
     if host != "": host_=host
     if port != "": port_=port
     if user != "": user_=user
     if pasw != "": pasw_=pasw
     if db != "": db_=db
     if creds != "": creds_=creds
+    if cursor != "": cursor_=cursor
 
 # A query.
 def query(query):
     conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
-    conn_object = conn.cursor()
+    conn_object = conn.cursor(pymysql.cursors.DictCursor) if cursor_=="DICTIONARY" else conn.cursor()
     conn_object.execute(query)
-    str = conn_object.fetchall()
+    response = conn_object.fetchall()
+    print(response)
     conn.commit()
     conn.close()
-    return str
+    return response
 
 # Call a stored procedure.
 def call(func, *args):
@@ -36,6 +39,16 @@ def call(func, *args):
     else: call += ");"
     q = query(call)
     return q[0][0] if (len(q)==1 and len(q[0])==1) else q
+
+# Quick insert.
+"""
+def insert(table, cols=[], vals):
+    call = f"INSERT INTO {table}"
+    if len(cols):
+        call += '('
+        for col in cols:
+            # INCOMPLETO!
+"""
 
 # Quick query.
 def all(table):
@@ -50,4 +63,15 @@ def getTomorrow():
     return dat.strftime("%Y-%m-%d")
 
 def parseNull(val):
-    return "NULL" if val in ["", "NULL"] else "'"+val+"'"
+    if val in [None, "", "NULL"]:
+        return "NULL"
+    elif isinstance(val, datetime.date):
+        return parseDate(val)
+    else:
+        return "'"+val+"'"
+
+def parseDate(val):
+    return val.strftime("%Y-%m-%d")
+
+def lol():
+    print("lol")
