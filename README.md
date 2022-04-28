@@ -1,7 +1,7 @@
 # 🍞 Loaf
 ### *So bland yet so good!™*
 
-Effortlessly access your MySQL server and procedures, plus some other utilities.
+Effortlessly access your SQL servers and procedures, plus some other utilities.
 
 
 
