@@ -30,7 +30,6 @@ def query(query):
     conn_object = conn.cursor(pymysql.cursors.DictCursor) if cursor_=="DICTIONARY" else conn.cursor()
     conn_object.execute(query)
     response = conn_object.fetchall()
-    print(response)
     conn.commit()
     conn.close()
     return response
