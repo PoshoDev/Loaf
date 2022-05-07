@@ -29,7 +29,10 @@ def query(query):
         conn = psycopg2.connect(host=host_, port=port_, user=user_, password=pasw_, database=db_)
     conn_object = conn.cursor(pymysql.cursors.DictCursor) if cursor_=="DICTIONARY" else conn.cursor()
     conn_object.execute(query)
-    response = conn_object.fetchall()
+    if conn_object.pgresult_ptr is not None:
+        response = conn_object.fetchall()
+    else:
+        response = None
     conn.commit()
     conn.close()
     return response
