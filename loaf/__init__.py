@@ -88,10 +88,10 @@ def call(func, *args):
 
 # Quick SELECT-FROM-WHERE
 # /!\ Allow to pass lists too in the future.
-def sfw(select, from="", where=""):
+def sfw(select, fromm="", where=""):
     query_str = f"SELECT {select} "
-    if from:
-        query_str += f"FROM {from} "
+    if fromm:
+        query_str += f"FROM {fromm} "
     if where:
         query_str += f"WHERE {where};"
     return query(query_str)
