@@ -87,6 +87,7 @@ def call(func, *args):
     return q[0][0] if (len(q)==1 and len(q[0])==1) else q
 
 # Quick SELECT-FROM-WHERE
+# /!\ Allow to pass lists too in the future.
 def sfw(select, from="", where=""):
     query_str = f"SELECT {select} "
     if from:
