@@ -11,3 +11,4 @@
     session.users.all()
     session.users.get("id=1")
     session.function(arg)
+[ ] Pretty table prints.
