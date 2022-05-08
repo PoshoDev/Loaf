@@ -86,6 +86,15 @@ def call(func, *args):
     q = query(call)
     return q[0][0] if (len(q)==1 and len(q[0])==1) else q
 
+# Quick SELECT-FROM-WHERE
+def sfw(select, from="", where=""):
+    query_str = f"SELECT {select} "
+    if from:
+        query_str += f"FROM {from} "
+    if where:
+        query_str += f"WHERE {where};"
+    return query(query_str)
+
 # Quick insert.
 """
 def insert(table, cols=[], vals):
