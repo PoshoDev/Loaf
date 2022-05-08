@@ -34,11 +34,8 @@ def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, cursor=curs_, m
 
 # A query.
 def query(query):
-    if (mode_ == "PostgreSQL"):
-        conn = psycopg2.connect(host=host_, port=port_, user=user_, password=pasw_, database=db_)
-    else: # MySQL by Default
-        conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
-    conn_object = conn.cursor(pymysql.cursors.DictCursor) if curs_=="DICTIONARY" else conn.cursor()
+    conn = get_connection()
+    conn_object = get_connection_object(conn)
     conn_object.execute(query)
     if conn_object.pgresult_ptr is not None:
         response = conn_object.fetchall()
@@ -48,13 +45,32 @@ def query(query):
     conn.close()
     return response
 
+def get_connection():
+    if (mode_ == "PostgreSQL"):
+        return psycopg2.connect(host=host_, port=port_, user=user_,
+                                password=pasw_, database=db_)
+    else: # MySQL (by Default)
+        return pymysql.connect(host=host_, port=port_, user=user_,
+                               passwd=pasw_, db=db_)
+
+def get_connection_object(conn):
+    # PostgreSQL
+    if (mode_ == "PostgreSQL"):
+        if curs_ == "DICTIONARY":
+            return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        else:
+            return conn.cursor()
+    # MySQL (by Default)
+    else:
+        if curs_ == "DICTIONARY":
+            return conn.cursor(pymysql.cursors.DictCursor)
+        else:
+            return conn.cursor()
+
 # Test your connection with your database.
 def test():
     try:
-        if (mode_ == "MySQL"):
-            conn = pymysql.connect(host=host_, port=port_, user=user_, passwd=pasw_, db=db_)
-        elif (mode_ == "PostgreSQL"):
-            conn = psycopg2.connect(host=host_, port=port_, user=user_, password=pasw_, database=db_)
+        get_connection()
         print(f"Successful connection at: {host_}")
     except Exception as ex:
         print(f"Connection error at: {host_}")
