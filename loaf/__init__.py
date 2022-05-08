@@ -26,7 +26,7 @@ def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, c
         config.read(file)
         section = config["DATABASE"]
         host_ = section["host"]
-        port_ = section["port"]
+        port_ = int(section["port"])
         user_ = section["user"]
         pasw_ = section["pasw"]
         db_   = section["db"]
