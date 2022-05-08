@@ -3,5 +3,5 @@
 **/build
 **/dist
 **/loaf.egg-info
-_creds.py
-test.py
+**creds.py
+**test.py
