@@ -1,4 +1,4 @@
-import pymysql, psycopg2, datetime, socket
+import pymysql, psycopg2, datetime, socket, configparser
 
 host_ = socket.gethostbyname(socket.gethostname())
 port_ = 80 # Default XAMPP Apache server port.
@@ -10,16 +10,27 @@ cursor_ = "DEFAULT"
 mode_ = "MySQL"
 
 # Make this differently, for the love of god!
-def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, cursor=cursor_, mode=mode_):
+def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, creds=creds_, cursor=cursor_, mode=mode_, file=None):
     global host_, port_, user_, pasw_, db_, creds_, cursor_, mode_
-    if host != "": host_=host
-    if port != "": port_=port
-    if user != "": user_=user
-    if pasw != "": pasw_=pasw
-    if db != "": db_=db
-    if creds != "": creds_=creds
-    if cursor != "": cursor_=cursor
-    if mode != "": mode_=mode
+    if file is None:
+        if host != "": host_=host
+        if port != "": port_=port
+        if user != "": user_=user
+        if pasw != "": pasw_=pasw
+        if db != "": db_=db
+        if creds != "": creds_=creds
+        if cursor != "": cursor_=cursor
+        if mode != "": mode_=mode
+    else:
+        config = configparser.ConfigParser()
+        config.read(file)
+        section = config["DATABASE"]
+        host_ = section["host"]
+        port_ = section["port"]
+        user_ = section["user"]
+        pasw_ = section["pasw"]
+        db_   = section["db"]
+        mode_ = section["mode"]
 
 # A query.
 def query(query):
