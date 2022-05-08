@@ -9,5 +9,5 @@
 [ ] Encryption/decryption tools.
 [ ] Tables, functions, etc.; as variables, so you can do:
     session.users.all()
-    session.users.get(id=1)
+    session.users.get("id=1")
     session.function(arg)
