@@ -16,7 +16,8 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     install_requires=["pymysql", "datetime"], # Excludes "socket"
-    keywords=['python', 'MySQL', 'database', 'db', 'easy', 'loaf', 'bread'],
+    keywords=['python', 'SQL', 'MySQL', 'MariaDB', 'PostgreSQL', 'database',
+              'db', 'easy', 'loaf', 'bread'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
