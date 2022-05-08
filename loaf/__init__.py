@@ -1,4 +1,4 @@
-import pymysql, psycopg2, datetime, socket, configparser
+import pymysql, psycopg2, psycopg2.extras, datetime, socket, configparser
 
 host_ = socket.gethostbyname(socket.gethostname())
 port_ = 80 # Default XAMPP Apache server port.
@@ -9,7 +9,8 @@ curs_ = "DEFAULT"
 mode_ = "MySQL"
 
 # Make this differently, for the love of god!
-def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, cursor=curs_, mode=mode_, file=None):
+def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, cursor=curs_,
+         mode=mode_, file=None):
     global host_, port_, user_, pasw_, db_, curs_, mode_
     if file is None:
         if host != "": host_=host

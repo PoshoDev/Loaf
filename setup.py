@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.22'
-DESCRIPTION = 'Effortlessly access your SQL servers and procedures, plus some other utilities!'
+VERSION = "0.1.23"
+DESCRIPTION = "Effortlessly access your SQL servers and procedures, plus " \
+              "some other utilities!"
 with open('README.md', encoding="utf8") as f:
     LONG_DESCRIPTION = f.read()
 
