@@ -38,7 +38,7 @@ def query(query):
     conn = get_connection()
     conn_object = get_connection_object(conn)
     conn_object.execute(query)
-    if conn_object.pgresult_ptr is not None:
+    if not mode_=="PostgreSQL" or conn_object.pgresult_ptr is not None:
         response = conn_object.fetchall()
     else:
         response = None
