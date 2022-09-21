@@ -90,6 +90,38 @@ class Loaf:
                 return self.conn.cursor() # SQLite doesn't support dictionaries?
         raise Exception("Invalid cursor type.")
 
+    # A query. If the argument is a string, it will be executed as a query. If the file argument is used, it will load the query string from a file.
+    def query(self, query="", file=None):
+        # If a file is specified, use it.
+        if file is not None:
+            with open(file, "r") as f:
+                query = f.read()
+        # Sanity check.
+        if query == "":
+            raise Exception("No query specified.")
+        # Execute the query.
+        self.cursor.execute(query)
+        # Return the results.
+        return self.cursor.fetchall()
+
+    # Performs multiple queries at once. The argument is a list of queries. If the file argument is True, it will load the query strings from files.
+    def multi(self, queries=[], file=False):
+        # If a file is specified, use it.
+        if file:
+            for i in range(len(queries)):
+                with open(queries[i], "r") as f:
+                    queries[i] = f.read()
+        # Sanity check.
+        if queries == []:
+            raise Exception("No queries specified.")
+        # Execute the queries.
+        for query in queries:
+            self.cursor.execute(query)
+        # Return the results.
+        return self.cursor.fetchall()
+
+
+
 
 
     
