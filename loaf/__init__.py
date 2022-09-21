@@ -150,3 +150,141 @@ class Loaf:
                 self.conn.commit()
         # Return the results.
         return results
+
+    # Calls a stored procedure. The arguments are the name of the procedure and a list of arguments.
+    def call(self, procedure, args=[], rollback_on_error=None):
+        # Getting the rollback.
+        rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
+        # Sanity check.
+        if procedure == "":
+            raise Exception("No procedure specified.")
+        # Execute the procedure.
+        try:
+            self.cursor.callproc(procedure, args)
+        except Exception as e:
+            if rollback_on_error:
+                self.conn.rollback()
+            raise e
+        else:
+            self.conn.commit()
+        # Return the result.
+        return self.cursor.fetchall()
+
+    ### EASY FUNCTIONS ###
+
+    # A quick SELECT query.
+    def select(self, select, fromm="", where="", order="", limit=""):
+        # Sanity check.
+        if select == "":
+            raise Exception("No SELECT specified.")
+        # First fabricate the query.
+        query = f"SELECT {select}"
+        query += f" FROM {fromm}" if fromm != "" else ""
+        query += f" WHERE {where}" if where != "" else ""
+        query += f" ORDER BY {order}" if order != "" else ""
+        query += f" LIMIT {limit}" if limit != "" else ""
+        query += ";"
+        # Execute the query.
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+
+    # A quick INSERT-INTO-VALUES query. The 'into' argument can be a string or a list of strings. The 'values' argument can be a string or a list of strings. If the 'values' argument is a list, it must be the same length as the 'into' argument.
+    def insert(self, into, values, rollback_on_error=None):
+        # Getting the rollback.
+        rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
+        # Sanity check.
+        if into == "" or into == []:
+            raise Exception("No INTO specified.")
+        if values == "" or values == []:
+            raise Exception("No VALUES specified.")
+        # First fabricate the query string.
+        if type(into) == list:
+            if type(values) == list:
+                if len(into) != len(values):
+                    raise Exception("The INTO and VALUES must be the same amount.")
+                into = ", ".join(into)
+                values = ", ".join(values)
+            else:
+                into = ", ".join(into)
+        else:
+            if type(values) == list:
+                values = ", ".join(values)
+        # Execute the query.
+        try:
+            self.cursor.execute(f"INSERT INTO {into} VALUES ({values})")
+        except Exception as e:
+            if rollback_on_error:
+                self.conn.rollback()
+            raise e
+        else:
+            self.conn.commit()
+
+    # Get all values from a table.
+    def all(self, table):
+        # Sanity check.
+        if table == "":
+            raise Exception("No table specified.")
+        # Execute the query.
+        self.cursor.execute(f"SELECT * FROM {table}")
+        return self.cursor.fetchall()
+
+    ### DATABASE STATUS FUNCTIONS ###
+
+    # Get the database's current date.
+    def currentDate(self):
+        if self.mode == "MySQL":
+            self.cursor.execute("SELECT CURDATE();")
+        elif self.mode == "PostgreSQL":
+            self.cursor.execute("SELECT CURRENT_DATE;")
+        elif self.mode == "SQLite":
+            self.cursor.execute("SELECT DATE('now');")
+        else:
+            raise Exception("Invalid mode.")
+        return self.cursor.fetchall()[0][0]
+
+    # Get the database's current time.
+    def currentTime(self):
+        if self.mode == "MySQL":
+            self.cursor.execute("SELECT CURTIME();")
+        elif self.mode == "PostgreSQL":
+            self.cursor.execute("SELECT CURRENT_TIME;")
+        elif self.mode == "SQLite":
+            self.cursor.execute("SELECT TIME('now');")
+        else:
+            raise Exception("Invalid mode.")
+        return self.cursor.fetchall()[0][0]
+
+    # Get the database's current date and time.
+    def currentDateTime(self):
+        if self.mode == "MySQL":
+            self.cursor.execute("SELECT NOW();")
+        elif self.mode == "PostgreSQL":
+            self.cursor.execute("SELECT CURRENT_TIMESTAMP;")
+        elif self.mode == "SQLite":
+            self.cursor.execute("SELECT DATETIME('now');")
+        else:
+            raise Exception("Invalid mode.")
+        return self.cursor.fetchall()[0][0]
+
+    # Get the database's current timestamp.
+    def currentTimestamp(self):
+        if self.mode == "MySQL":
+            self.cursor.execute("SELECT UNIX_TIMESTAMP();")
+        elif self.mode == "PostgreSQL":
+            self.cursor.execute("SELECT EXTRACT(EPOCH FROM CURRENT_TIMESTAMP);")
+        elif self.mode == "SQLite":
+            self.cursor.execute("SELECT STRFTIME('%s', 'now');")
+        else:
+            raise Exception("Invalid mode.")
+        return self.cursor.fetchall()[0][0]
+
+
+### UTILITIES ###
+
+# Forces the current value to be parsed into a "NULL" string if applies. Otherwise, it cleans up the value.
+def parse(value):
+    if value in [None, "", "NULL"]:
+        return "NULL"
+    if isinstance(value, datetime.date):
+        return value.strftime("%Y-%m-%d")
+    return "'" + str(value).replace("'", "''") + "'"
