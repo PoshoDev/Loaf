@@ -11,13 +11,14 @@ defaults = {
     "pasw": "",
     "db": None,
     "cursor": cursors[0],
-    "mode": modes[0]
+    "mode": modes[0],
+    "rollback_on_error": True
 }
 
 # The Loaf class. Used to hold connections and other data in a single object.
 class Loaf:
     def __init__(self, file=None, host=None, port=None, user=None, pasw=None, db=None,
-                 cursor=None, mode=None):
+                 cursor=None, mode=None, rollback_on_error=None):
         # If a file is specified, use it.
         if file is not None:
             # Creating from an INI file.
@@ -33,11 +34,13 @@ class Loaf:
                 self.db = section["db"] if config.has_option(sect, "db") else defaults["db"]
                 self.cursorType = section["cursor"] if config.has_option(sect, "cursor") else defaults["cursor"]
                 self.mode = section["mode"] if config.has_option(sect, "mode") else defaults["mode"]
+                self.rollback_on_error = section["rollback_on_error"] if config.has_option(sect, "rollback_on_error") else defaults["rollback_on_error"]
             # Creating from a DB file
             elif file[-3:] == ".db":
                 self.mode = "SQLite"
                 self.db = file
                 self.cursorType = cursor if cursor is not None else defaults["cursor"]
+                self.rollback_on_error = rollback_on_error if rollback_on_error is not None else defaults["rollback_on_error"]
             else:
                 raise Exception("Invalid file type.")
         # If no file is specified, use the arguments.
@@ -49,15 +52,20 @@ class Loaf:
             self.db = db if db is not None else defaults["db"]
             self.cursorType = cursor if cursor is not None else defaults["cursor"]
             self.mode = mode if mode is not None else defaults["mode"]
+            self.rollback_on_error = rollback_on_error if rollback_on_error is not None else defaults["rollback_on_error"]
         # Sanity checks.
         if self.mode not in modes:
             raise Exception(f"Invalid mode. Available modes: {modes}")
         if self.cursorType not in cursors:
             raise Exception(f"Invalid cursor type. Available types: {cursors}")
         # Create the connection.
-        self.conn = self.createConnection(self)
+        self.conn = self.createConnection()
         # Create the cursor.
-        self.cursor = self.createCursor(self)
+        self.cursor = self.createCursor()
+
+    # Closes the connection.
+    def __delete__(self):
+        self.conn.close()
 
     # Creates a connection.
     def createConnection(self):
@@ -91,7 +99,9 @@ class Loaf:
         raise Exception("Invalid cursor type.")
 
     # A query. If the argument is a string, it will be executed as a query. If the file argument is used, it will load the query string from a file.
-    def query(self, query="", file=None):
+    def query(self, query="", file=None, rollback_on_error=None):
+        # Getting the rollback.
+        rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
         # If a file is specified, use it.
         if file is not None:
             with open(file, "r") as f:
@@ -100,14 +110,23 @@ class Loaf:
         if query == "":
             raise Exception("No query specified.")
         # Execute the query.
-        self.cursor.execute(query)
-        # Return the results.
+        try:
+            self.cursor.execute(query)
+        except Exception as e:
+            if rollback_on_error:
+                self.conn.rollback()
+            raise e
+        else:
+            self.conn.commit()
+        # Return the result.
         return self.cursor.fetchall()
 
     # Performs multiple queries at once. The argument is a list of queries. If the file argument is True, it will load the query strings from files.
-    def multi(self, queries=[], file=False):
+    def multi(self, queries=[], files=False, rollback_on_error=None):
+        # Getting the rollback.
+        rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
         # If a file is specified, use it.
-        if file:
+        if files:
             for i in range(len(queries)):
                 with open(queries[i], "r") as f:
                     queries[i] = f.read()
@@ -115,14 +134,19 @@ class Loaf:
         if queries == []:
             raise Exception("No queries specified.")
         # Execute the queries.
-        for query in queries:
-            self.cursor.execute(query)
+        results = []
+        try:
+            for query in queries:
+                self.cursor.execute(query)
+                results.append(self.cursor.fetchall())
+                if not rollback_on_error:
+                    self.conn.commit()
+        except Exception as e:
+            if rollback_on_error:
+                self.conn.rollback()
+            raise e
+        else:
+            if rollback_on_error:
+                self.conn.commit()
         # Return the results.
-        return self.cursor.fetchall()
-
-
-
-
-
-    
-
+        return results

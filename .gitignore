@@ -3,8 +3,12 @@
 **/build
 **/dist
 **/loaf.egg-info
-**creds.py
+**creds.ini
 **test.py
+**playground.py
+**.db
+**.ini
+**.sql
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
