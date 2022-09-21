@@ -46,6 +46,10 @@ def query(query):
     conn.close()
     return response
 
+# A way to use multiple queries.
+def multi(queries):
+    pass
+
 def get_connection():
     if (mode_ == "PostgreSQL"):
         return psycopg2.connect(host=host_, port=port_, user=user_,
