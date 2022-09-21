@@ -1,138 +1,96 @@
-import pymysql, psycopg2, psycopg2.extras, datetime, socket, configparser
+# A Python module for effortless database usage.
 
-host_ = socket.gethostbyname(socket.gethostname())
-port_ = 80 # Default XAMPP Apache server port.
-user_ = "root"
-pasw_ = ""
-db_ = None
-curs_ = "DEFAULT"
-mode_ = "MySQL"
+import pymysql, psycopg2, psycopg2.extras, sqlite3, datetime, socket, configparser
 
-# Make this differently, for the love of god!
-def bake(host=host_, port=port_, user=user_, pasw=pasw_, db=db_, cursor=curs_,
-         mode=mode_, file=None):
-    global host_, port_, user_, pasw_, db_, curs_, mode_
-    if file is None:
-        if host != "": host_=host
-        if port != "": port_=port
-        if user != "": user_=user
-        if pasw != "": pasw_=pasw
-        if db != "": db_=db
-        if cursor != "": curs_=cursor
-        if mode != "": mode_=mode
-    else:
-        config = configparser.ConfigParser()
-        config.read(file)
-        sect = "DATABASE"
-        section = config[sect]
-        if config.has_option(sect, "host"): host_ = section["host"]
-        if config.has_option(sect, "port"): port_ = int(section["port"])
-        if config.has_option(sect, "user"): user_ = section["user"]
-        if config.has_option(sect, "pasw"): pasw_ = section["pasw"]
-        if config.has_option(sect, "db"):   db_   = section["db"]
-        if config.has_option(sect, "curs"): curs_ = section["curs"]
-        if config.has_option(sect, "mode"): mode_ = section["mode"]
+cursors = ["DEFAULT", "DICTIONARY"]
+modes = ["MySQL", "PostgreSQL", "SQLite"]
+defaults = {
+    "host": socket.gethostbyname(socket.gethostname()),
+    "port": 80, # Default XAMPP Apache server port.
+    "user": "root",
+    "pasw": "",
+    "db": None,
+    "cursor": cursors[0],
+    "mode": modes[0]
+}
 
-# A query.
-def query(query):
-    conn = get_connection()
-    conn_object = get_connection_object(conn)
-    conn_object.execute(query)
-    if not mode_=="PostgreSQL" or conn_object.pgresult_ptr is not None:
-        response = conn_object.fetchall()
-    else:
-        response = None
-    conn.commit()
-    conn.close()
-    return response
-
-# A way to use multiple queries.
-def multi(queries):
-    pass
-
-def get_connection():
-    if (mode_ == "PostgreSQL"):
-        return psycopg2.connect(host=host_, port=port_, user=user_,
-                                password=pasw_, database=db_)
-    else: # MySQL (by Default)
-        return pymysql.connect(host=host_, port=port_, user=user_,
-                               passwd=pasw_, db=db_)
-
-def get_connection_object(conn):
-    # PostgreSQL
-    if (mode_ == "PostgreSQL"):
-        if curs_ == "DICTIONARY":
-            return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+# The Loaf class. Used to hold connections and other data in a single object.
+class Loaf:
+    def __init__(self, file=None, host=None, port=None, user=None, pasw=None, db=None,
+                 cursor=None, mode=None):
+        # If a file is specified, use it.
+        if file is not None:
+            # Creating from an INI file.
+            if file[-4:] == ".ini":
+                config = configparser.ConfigParser()
+                config.read(file)
+                sect = "DATABASE"
+                section = config[sect]
+                self.host = section["host"] if config.has_option(sect, "host") else defaults["host"]
+                self.port = int(section["port"]) if config.has_option(sect, "port") else defaults["port"]
+                self.user = section["user"] if config.has_option(sect, "user") else defaults["user"]
+                self.pasw = section["pasw"] if config.has_option(sect, "pasw") else defaults["pasw"]
+                self.db = section["db"] if config.has_option(sect, "db") else defaults["db"]
+                self.cursorType = section["cursor"] if config.has_option(sect, "cursor") else defaults["cursor"]
+                self.mode = section["mode"] if config.has_option(sect, "mode") else defaults["mode"]
+            # Creating from a DB file
+            elif file[-3:] == ".db":
+                self.mode = "SQLite"
+                self.db = file
+                self.cursorType = cursor if cursor is not None else defaults["cursor"]
+            else:
+                raise Exception("Invalid file type.")
+        # If no file is specified, use the arguments.
         else:
-            return conn.cursor()
-    # MySQL (by Default)
-    else:
-        if curs_ == "DICTIONARY":
-            return conn.cursor(pymysql.cursors.DictCursor)
-        else:
-            return conn.cursor()
+            self.host = host if host is not None else defaults["host"]
+            self.port = port if port is not None else defaults["port"]
+            self.user = user if user is not None else defaults["user"]
+            self.pasw = pasw if pasw is not None else defaults["pasw"]
+            self.db = db if db is not None else defaults["db"]
+            self.cursorType = cursor if cursor is not None else defaults["cursor"]
+            self.mode = mode if mode is not None else defaults["mode"]
+        # Sanity checks.
+        if self.mode not in modes:
+            raise Exception(f"Invalid mode. Available modes: {modes}")
+        if self.cursorType not in cursors:
+            raise Exception(f"Invalid cursor type. Available types: {cursors}")
+        # Create the connection.
+        self.conn = self.createConnection(self)
+        # Create the cursor.
+        self.cursor = self.createCursor(self)
 
-# Test your connection with your database.
-def test():
-    try:
-        get_connection()
-        print(f"Successful connection at: {host_}")
-    except Exception as ex:
-        print(f"Connection error at: {host_}")
-        print(ex)
+    # Creates a connection.
+    def createConnection(self):
+        if self.mode == "MySQL":
+            return pymysql.connect(host=self.host, port=self.port, user=self.user,
+                                        password=self.pasw, db=self.db)
+        elif self.mode == "PostgreSQL":
+            return psycopg2.connect(host=self.host, port=self.port, user=self.user,
+                                         password=self.pasw, database=self.db)
+        elif self.mode == "SQLite":
+            return sqlite3.connect(self.db)
+        raise Exception("Invalid mode.")
 
-# Call a stored procedure.
-def call(func, *args):
-    call = "CALL " + func + "("
-    if len(args) > 0:
-        for i in range(len(args)):
-            call += (str(args[i]) if type(args[i])==type(1) else parseNull(args[i])) + (", " if i<len(args)-1 else ");")
-    else: call += ");"
-    q = query(call)
-    return q[0][0] if (len(q)==1 and len(q[0])==1) else q
+    # Creates a cursor.
+    def createCursor(self):
+        if self.mode == "MySQL":
+            if self.cursorType == "DEFAULT":
+                return self.conn.cursor()
+            elif self.cursorType == "DICTIONARY":
+                return self.conn.cursor(pymysql.cursors.DictCursor)
+        elif self.mode == "PostgreSQL":
+            if self.cursorType == "DEFAULT":
+                return self.conn.cursor()
+            elif self.cursorType == "DICTIONARY":
+                return self.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        elif self.mode == "SQLite":
+            if self.cursorType == "DEFAULT":
+                return self.conn.cursor()
+            elif self.cursorType == "DICTIONARY":
+                return self.conn.cursor() # SQLite doesn't support dictionaries?
+        raise Exception("Invalid cursor type.")
 
-# Quick SELECT-FROM-WHERE
-# /!\ Allow to pass lists too in the future.
-def sfw(select, fromm="", where=""):
-    query_str = f"SELECT {select} "
-    if fromm:
-        query_str += f"FROM {fromm} "
-    if where:
-        query_str += f"WHERE {where};"
-    return query(query_str)
 
-# Quick insert.
-"""
-def insert(table, cols=[], vals):
-    call = f"INSERT INTO {table}"
-    if len(cols):
-        call += '('
-        for col in cols:
-            # INCOMPLETO!
-"""
 
-# Quick query.
-def all(table):
-    return query(f"SELECT * from {table};")
+    
 
-def getToday():
-    dat = datetime.date.today() + datetime.timedelta(days=1)
-    return dat.strftime("%Y-%m-%d")
-
-def getTomorrow():
-    dat = datetime.date.today() + datetime.timedelta(days=1)
-    return dat.strftime("%Y-%m-%d")
-
-def parseNull(val):
-    if val in [None, "", "NULL"]:
-        return "NULL"
-    elif isinstance(val, datetime.date):
-        return parseDate(val)
-    else:
-        return "'"+val+"'"
-
-def parseDate(val):
-    return val.strftime("%Y-%m-%d")
-
-def lol():
-    print("lol")
