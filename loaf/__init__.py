@@ -1,10 +1,8 @@
-# A Python module for effortless database usage.
-
 import pymysql, psycopg2, psycopg2.extras, sqlite3, datetime, socket, configparser
 from rich.table import Table
 from rich import print as rprint
 
-cursors = ["DEFAULT", "DICTIONARY"]
+cursors = ["DICTIONARY", "DEFAULT"]
 modes = ["MySQL", "PostgreSQL", "SQLite"]
 defaults = {
     "host": socket.gethostbyname(socket.gethostname()),
@@ -176,32 +174,25 @@ class Loaf:
 
     # Prints the result of a query as a rich table. The 'data' argument can be a tuple or a dictionary. 
     def print(self, data, title=None):
-        # If the data is a dictionary, convert it to a tuple.
         if type(data) == dict:
             data = tuple(data.items())
-        # If the data is a tuple, convert it to a list. This is done because the Rich library doesn't support tuples.
         if type(data) == tuple:
             data = list(data)
-        # If the data is a list, convert it to a table.
         if type(data) == list:
             table = Table(title=title)
-            # If the data is a list of tuples, convert it to a table.
             if type(data[0]) == tuple:
                 for i in range(len(data[0])):
                     table.add_column(data[0][i])
                 for i in range(1, len(data)):
                     table.add_row(*data[i])
-            # If the data is a list of dictionaries, convert it to a table.
             elif type(data[0]) == dict:
                 for i in data[0].keys():
                     table.add_column(i)
                 for i in data:
-                    # Parse the values to strings. Then add the rows.
                     values = []
                     for j in i.values():
-                        values.append(parse(j))
+                        values.append(tParse(j))
                     table.add_row(*values)
-            # Print the table.
             rprint(table)
         else:
             raise Exception("Invalid data type.")
@@ -326,3 +317,13 @@ def parse(value):
     if isinstance(value, datetime.date):
         return value.strftime("%Y-%m-%d")
     return "'" + str(value).replace("'", "''") + "'"
+
+# Parses a value to a colored string to be used in tables.
+def tParse(value):
+    if value in [None, "", "NULL"]:
+        return "[dim]NULL[/]"
+    if isinstance(value, int):
+        return "[magenta]" + str(value) + "[/]"
+    if isinstance(value, datetime.date):
+        return "[cyan]" + value.strftime("%Y-%m-%d") + "[/]"
+    return "[green]'" + str(value).replace("'", "''") + "'[/]"

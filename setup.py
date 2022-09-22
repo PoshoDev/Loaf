@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.1.30"
+VERSION = "0.2.0"
 DESCRIPTION = "Effortlessly access your SQL servers and procedures, plus " \
               "some other utilities!"
 with open('README.md', encoding="utf8") as f:
@@ -16,7 +16,14 @@ setup(
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    install_requires=["pymysql", "datetime"], # Excludes "socket"
+    install_requires=[
+        "pymysql",
+        "psycopg2",
+        "sqlite3",
+        "datetime",
+        "socket",
+        "configparser"
+    ],
     keywords=['python', 'SQL', 'MySQL', 'MariaDB', 'PostgreSQL', 'database',
               'db', 'easy', 'loaf', 'bread'],
     classifiers=[
