@@ -117,10 +117,7 @@ result = loaf.call("ProcedureFindClient", 1)
 
 
 
-```
 ⚠️ Syntax for the package has changed heavily since version 0.2.0, if your project depends on Loaf and is using an inferior version, I heavily suggest that you use the previous stable version:
-```
-
 ```
 $ pip install loaf==0.1.30
 ```
