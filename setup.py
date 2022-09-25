@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.2.0"
+VERSION = "0.2.2"
 DESCRIPTION = "Effortlessly access your SQL servers and procedures, plus " \
               "some other utilities!"
 with open('README.md', encoding="utf8") as f:
     LONG_DESCRIPTION = f.read()
 
 # Setting up
+# install_requires excludes the following since they come with Python itself: socket, sqlite3
 setup(
     name="loaf",
     version=VERSION,
@@ -19,9 +20,7 @@ setup(
     install_requires=[
         "pymysql",
         "psycopg2",
-        "sqlite3",
         "datetime",
-        "socket",
         "configparser"
     ],
     keywords=['python', 'SQL', 'MySQL', 'MariaDB', 'PostgreSQL', 'database',
