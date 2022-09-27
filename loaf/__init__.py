@@ -14,6 +14,10 @@ defaults = {
     "mode": modes[0],
     "rollback_on_error": True
 }
+removables = {
+    "start": ['--sql', '--beginsql', '--begin-sql'],
+    "end": ['--endsql', '--end-sql']
+}
 
 # The Loaf class. Used to hold connections and other data in a single object.
 class Loaf:
@@ -109,6 +113,8 @@ class Loaf:
         # Sanity check.
         if query == "":
             raise Exception("No query specified.")
+        else:
+            query = sParse(query)
         # Execute the query.
         try:
             self.cursor.execute(query)
@@ -327,3 +333,15 @@ def tParse(value):
     if isinstance(value, datetime.date):
         return "[cyan]" + value.strftime("%Y-%m-%d") + "[/]"
     return "[green]'" + str(value).replace("'", "''") + "'[/]"
+
+# Removes the "--sql" substring from the beginning of the value so that queries are compatible with VScode extensions like python-string-sql.
+def sParse(value):
+    for removable in removables["start"]:
+        if value.startswith(removable):
+            value = value[len(removable):]
+            break
+    for removable in removables["end"]:
+        if value.endswith(removable):
+            value = value[:-len(removable)]
+            break
+    return value
