@@ -257,7 +257,7 @@ class Loaf:
         return self.cursor.fetchall()
 
     # A quick INSERT-INTO-VALUES query. The 'into' argument can be a string or a list of strings. The 'values' argument can be a string or a list of strings. If the 'values' argument is a list, it must be the same length as the 'into' argument.
-    def insert(self, into, values, rollback_on_error=None):
+    def insert(self, table, into, values, rollback_on_error=None):
         # Getting the rollback.
         rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
         # Sanity check.
@@ -266,20 +266,26 @@ class Loaf:
         if values == "" or values == []:
             raise Exception("No VALUES specified.")
         # First fabricate the query string.
-        if type(into) == list:
-            if type(values) == list:
-                if len(into) != len(values):
-                    raise Exception("The INTO and VALUES must be the same amount.")
-                into = ", ".join(into)
-                values = ", ".join(values)
-            else:
-                into = ", ".join(into)
+        if type(into) != type(values):
+            raise Exception("The INTO and VALUES arguments must be of the same type.")
+        if type(into) == str:
+            finalInto = parse(into)
+            finalValues = parse(values)
+        elif type(into) == list:
+            if len(into) != len(values):
+                raise Exception("The INTO and VALUES arguments must be the same length.")
+            finalInto = ""
+            finalValues = ""
+            for i in range(len(into)):
+                finalInto += into[i] + ", "
+                finalValues += parse(values[i]) + ", "
+            finalInto = finalInto[:-2]
+            finalValues = finalValues[:-2]
         else:
-            if type(values) == list:
-                values = ", ".join(values)
+            raise Exception("Invalid INTO or VALUES type.")
         # Execute the query.
         try:
-            self.cursor.execute(f"INSERT INTO {into} VALUES ({values})")
+            self.cursor.execute(f"INSERT INTO {table} ({finalInto}) VALUES ({finalValues})")
         except Exception as e:
             if rollback_on_error:
                 self.conn.rollback()
