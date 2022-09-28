@@ -297,6 +297,32 @@ class Loaf:
         else:
             self.conn.commit()
 
+    # A quick DELETE query.
+    def delete(self, table, where=""):
+        # Sanity check.
+        if table == "":
+            raise Exception("No table specified.")
+        self.query(f"DELETE FROM {table} WHERE {where}")
+
+    # A quick UPDATE query.
+    def update(self, table, columns, values, where=""):
+        # First fabricate the query string.
+        if type(columns) != type(values):
+            raise Exception("The COLUMNS and VALUES arguments must be of the same type.")
+        if type(columns) == str:
+            finalColumns = columns
+            finalValues = parse(values)
+        elif type(columns) == list:
+            if len(columns) != len(values):
+                raise Exception("The COLUMNS and VALUES arguments must be the same length.")
+            setValues = ""
+            for i in range(len(columns)):
+                setValues += f"{columns[i]} = {parse(values[i])}, "
+            setValues = setValues[:-2]
+        else:
+            raise Exception("Invalid COLUMNS or VALUES type.")
+        self.query(f"UPDATE {table} SET {setValues} WHERE {where}")
+
     # Get all values from a table.
     def all(self, table):
         # Sanity check.
@@ -366,7 +392,7 @@ def parse(value):
     if isinstance(value, int):
         return str(value)
     if isinstance(value, datetime.date):
-        return value.strftime("%Y-%m-%d")
+        return "'" + value.strftime("%Y-%m-%d") + "'"
     return "'" + str(value).replace("'", "''") + "'"
 
 # Parses a value to a colored string to be used in tables.
