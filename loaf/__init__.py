@@ -244,7 +244,7 @@ class Loaf:
     def select(self, select, fromm="", where="", order="", limit=""):
         # Sanity check.
         if select == "":
-            raise Exception("No SELECT specified.")
+            raise Exception("No FROM specified.")
         # First fabricate the query.
         query = f"SELECT {select}"
         query += f" FROM {fromm}" if fromm != "" else ""
@@ -255,6 +255,10 @@ class Loaf:
         # Execute the query.
         self.cursor.execute(query)
         return self.cursor.fetchall()
+
+    # A quick SELECT * FROM query.
+    def selectAll(self, fromm="", where="", order="", limit=""):
+        return self.select("*", fromm, where, order, limit)
 
     # A quick INSERT-INTO-VALUES query. The 'into' argument can be a string or a list of strings. The 'values' argument can be a string or a list of strings. If the 'values' argument is a list, it must be the same length as the 'into' argument.
     def insert(self, table, into, values, rollback_on_error=None):
