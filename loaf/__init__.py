@@ -84,21 +84,22 @@ class Loaf:
         raise Exception("Invalid mode.")
 
     # Creates a cursor.
-    def createCursor(self):
+    def createCursor(self, cursorType=None):
+        cursorType = cursorType if cursorType is not None else self.cursorType
         if self.mode == "MySQL":
-            if self.cursorType == "DEFAULT":
+            if cursorType == "DEFAULT":
                 return self.conn.cursor()
-            elif self.cursorType == "DICTIONARY":
+            elif cursorType == "DICTIONARY":
                 return self.conn.cursor(pymysql.cursors.DictCursor)
         elif self.mode == "PostgreSQL":
-            if self.cursorType == "DEFAULT":
+            if cursorType == "DEFAULT":
                 return self.conn.cursor()
-            elif self.cursorType == "DICTIONARY":
+            elif cursorType == "DICTIONARY":
                 return self.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         elif self.mode == "SQLite":
-            if self.cursorType == "DEFAULT":
+            if cursorType == "DEFAULT":
                 return self.conn.cursor()
-            elif self.cursorType == "DICTIONARY":
+            elif cursorType == "DICTIONARY":
                 return self.conn.cursor() # SQLite doesn't support dictionaries?
         raise Exception("Invalid cursor type.")
 
@@ -156,6 +157,40 @@ class Loaf:
                 self.conn.commit()
         # Return the results.
         return results
+
+    # Performs a query and returns the first result. It HAS to be done using the 'DEFAULT' cursor type.
+    def single(self, query="", file=None, rollback_on_error=None):
+        # Getting the rollback.
+        rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
+        # If a file is specified, use it.
+        if file is not None:
+            with open(file, "r") as f:
+                query = f.read()
+        # Sanity check.
+        if query == "":
+            raise Exception("No query specified.")
+        else:
+            query = sParse(query)
+        # Execute the query.
+        try:
+            tempCursor = self.createCursor("DEFAULT")
+            tempCursor.execute(query)
+        except Exception as e:
+            if rollback_on_error:
+                self.conn.rollback()
+            raise e
+        else:
+            self.conn.commit()
+        # Return the result.
+        try:
+            return tempCursor.fetchall()[0][0]
+        except:
+            try:
+                return tempCursor.fetchall()[0]
+            except:
+                return tempCursor.fetchall()
+
+        
 
     # Calls a stored procedure. The arguments are the name of the procedure and a list of arguments.
     def call(self, procedure, args=[], rollback_on_error=None):
