@@ -104,7 +104,7 @@ class Loaf:
         raise Exception("Invalid cursor type.")
 
     # A query. If the argument is a string, it will be executed as a query. If the file argument is used, it will load the query string from a file.
-    def query(self, query="", file=None, rollback_on_error=None):
+    def query(self, query="", file=None, commit=True, rollback_on_error=None):
         # Getting the rollback.
         rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
         # If a file is specified, use it.
@@ -124,12 +124,13 @@ class Loaf:
                 self.conn.rollback()
             raise e
         else:
-            self.conn.commit()
+            if commit:
+                self.conn.commit()
         # Return the result.
         return self.cursor.fetchall()
 
     # Performs multiple queries at once. The argument is a list of queries. If the file argument is True, it will load the query strings from files.
-    def multi(self, queries=[], files=False, rollback_on_error=None):
+    def multi(self, queries=[], files=False, commit=True, rollback_on_error=None):
         # Getting the rollback.
         rollback_on_error = rollback_on_error if rollback_on_error is not None else self.rollback_on_error
         # If a file is specified, use it.
@@ -153,7 +154,7 @@ class Loaf:
                 self.conn.rollback()
             raise e
         else:
-            if rollback_on_error:
+            if commit:
                 self.conn.commit()
         # Return the results.
         return results
@@ -190,7 +191,9 @@ class Loaf:
             except:
                 return tempCursor.fetchall()
 
-        
+    # A simple commit.
+    def commit(self):
+        self.conn.commit()
 
     # Calls a stored procedure. The arguments are the name of the procedure and a list of arguments.
     def call(self, procedure, args=[], rollback_on_error=None):
