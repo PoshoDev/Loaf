@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.2.17"
+VERSION = "0.2.18"
 DESCRIPTION = "Effortlessly access your SQL servers and procedures, plus " \
               "some other utilities!"
 with open('README.md', encoding="utf8") as f:
@@ -19,7 +19,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pymysql",
-        "psycopg2",
         "datetime",
         "configparser"
     ],
