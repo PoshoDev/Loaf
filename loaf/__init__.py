@@ -39,7 +39,7 @@ class Loaf:
                 self.cursorType = section["cursor"] if config.has_option(sect, "cursor") else defaults["cursor"]
                 self.mode = section["mode"] if config.has_option(sect, "mode") else defaults["mode"]
                 self.rollback_on_error = section["rollback_on_error"] if config.has_option(sect, "rollback_on_error") else defaults["rollback_on_error"]
-            # Creating from a DB file
+            # Creating from a .DB file
             elif file[-3:] == ".db":
                 self.mode = "SQLite"
                 self.db = file
@@ -62,14 +62,17 @@ class Loaf:
             raise Exception(f"Invalid mode. Available modes: {modes}")
         if self.cursorType not in cursors:
             raise Exception(f"Invalid cursor type. Available types: {cursors}")
-        # Create the connection.
-        self.conn = self.createConnection()
-        # Create the cursor.
-        self.cursor = self.createCursor()
+        # Create the connection and cursor.
+        self.refresh()
 
     # Closes the connection.
     def __delete__(self):
         self.conn.close()
+
+    # Refresh connection and cursor.
+    def refresh(self):
+        self.conn = self.createConnection()
+        self.cursor = self.createCursor()
 
     # Creates a connection.
     def createConnection(self):
@@ -118,6 +121,7 @@ class Loaf:
             query = sParse(query)
         # Execute the query.
         try:
+            self.refresh()
             self.cursor.execute(query)
         except Exception as e:
             if rollback_on_error:
@@ -144,6 +148,7 @@ class Loaf:
         # Execute the queries.
         results = []
         try:
+            self.refresh()
             for query in queries:
                 self.cursor.execute(query)
                 results.append(self.cursor.fetchall())
@@ -174,6 +179,7 @@ class Loaf:
             query = sParse(query)
         # Execute the query.
         try:
+            self.refresh()
             tempCursor = self.createCursor("DEFAULT")
             tempCursor.execute(query)
         except Exception as e:
@@ -204,6 +210,7 @@ class Loaf:
             raise Exception("No procedure specified.")
         # Execute the procedure.
         try:
+            self.refresh()
             self.cursor.callproc(procedure, args)
         except Exception as e:
             if rollback_on_error:
@@ -256,11 +263,13 @@ class Loaf:
         query += f" LIMIT {limit}" if limit != "" else ""
         query += ";"
         # Execute the query.
+        self.refresh()
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
     # A quick SELECT * FROM query.
     def selectAll(self, fromm="", where="", order="", limit=""):
+        self.refresh()
         return self.select("*", fromm, where, order, limit)
 
     # A quick INSERT-INTO-VALUES query. The 'into' argument can be a string or a list of strings. The 'values' argument can be a string or a list of strings. If the 'values' argument is a list, it must be the same length as the 'into' argument.
@@ -292,6 +301,7 @@ class Loaf:
             raise Exception("Invalid INTO or VALUES type.")
         # Execute the query.
         try:
+            self.refresh()
             self.cursor.execute(f"INSERT INTO {table} ({finalInto}) VALUES ({finalValues})")
         except Exception as e:
             if rollback_on_error:
@@ -302,6 +312,7 @@ class Loaf:
 
     # A quick DELETE query.
     def delete(self, table, where=""):
+        self.refresh()
         # Sanity check.
         if table == "":
             raise Exception("No table specified.")
