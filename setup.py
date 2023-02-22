@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "0.2.19"
+VERSION = "0.2.20"
 DESCRIPTION = "Effortlessly access your SQL servers and procedures, plus " \
               "some other utilities!"
 with open('README.md', encoding="utf8") as f:
@@ -21,7 +21,8 @@ setup(
         "pymysql",
         "datetime",
         "configparser",
-        "cryptography"
+        "cryptography",
+        "psycopg2-binary",
     ],
     keywords=['python', 'SQL', 'MySQL', 'MariaDB', 'PostgreSQL', 'database',
               'db', 'easy', 'loaf', 'bread'],
