@@ -1,5 +1,5 @@
 from .utils import (Creds, CursorTypes, DatabaseTypes, DefaultConfig,
-                    load_file, parse_sql_url, create_connection_and_cursor)
+                    create_connection_and_cursor, load_file, parse_sql_url)
 
 
 class Loaf:
