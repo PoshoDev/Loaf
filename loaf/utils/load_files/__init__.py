@@ -1,7 +1,7 @@
 from .file_ini import load_file_ini
 from .file_sqlite import load_file_sqlite
 
-def load_file(file_path, creds):
+def load_file(creds, file_path):
     if file_path[-4:] == ".ini":
         return load_file_ini(file_path, creds)
     if file_path[-3:] == ".db":

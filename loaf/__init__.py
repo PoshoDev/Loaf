@@ -16,19 +16,17 @@ class Loaf:
         database_type: DatabaseTypes = DefaultConfig.DATABASE_TYPE,
         rollback_on_error: bool = DefaultConfig.ROLLBACK_ON_ERROR
     ):
-        self.creds = self._get_creds(
-            url,
-            file_path,
-            Creds(
-                host=host,
-                port=port,
-                user=user,
-                password=password,
-                database=database,
-                cursor_type=cursor_type,
-                database_type=database_type,
-                rollback_on_error=rollback_on_error
-            )
+        self.creds = Creds(
+            url=url,
+            file_path=file_path,
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database=database,
+            cursor_type=cursor_type,
+            database_type=database_type,
+            rollback_on_error=rollback_on_error
         )
         self.refresh()
 
@@ -39,11 +37,7 @@ class Loaf:
         self.connection, self.cursor = \
             create_connection_and_cursor(self.creds)
 
-    def _get_creds(url, file_path, creds):
-        if url:
-            return parse_sql_url(url, creds)
-        if file_path:
-            return load_file(file_path, creds)
+    
         
     
 
