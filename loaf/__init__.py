@@ -1,4 +1,4 @@
-from .utils import CursorTypes, DatabaseTypes
+from .utils import CursorTypes, DatabaseTypes, DefaultConfig, parse_sql_url
 
 
 class Loaf:
@@ -6,13 +6,22 @@ class Loaf:
         self,
         url: str = None,
         file: str = None,
-        host: str = None,
-        port: int = None,
-        user: str = None,
-        password: str = None,
-        database: str = None,
-        cursor_type: CursorTypes = CursorTypes.DICTIONARY,
-        database_type: DatabaseTypes = DatabaseTypes.MYSQL,
-        rollback_on_error: bool = True
+        host: str = DefaultConfig.HOST,
+        port: int = DefaultConfig.PORT,
+        user: str = DefaultConfig.USER,
+        password: str = DefaultConfig.PASSWORD,
+        database: str = DefaultConfig.DATABASE,
+        cursor_type: CursorTypes = DefaultConfig.CURSOR_TYPE,
+        database_type: DatabaseTypes = DefaultConfig.DATABASE_TYPE,
+        rollback_on_error: bool = DefaultConfig.ROLLBACK_ON_ERROR
     ):
         pass
+
+    def __del__(self):
+        self.conn.close()
+
+    def _get_creds(url, file, host, user, password, database):
+        if url:
+            return parse_sql_url(url)
+        if file:
+            pass
