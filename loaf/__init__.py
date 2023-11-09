@@ -1,4 +1,5 @@
-from .utils import CursorTypes, DatabaseTypes, DefaultConfig, parse_sql_url, load_file, Creds
+from .utils import (Creds, CursorTypes, DatabaseTypes, DefaultConfig,
+                    load_file, parse_sql_url)
 
 
 class Loaf:
