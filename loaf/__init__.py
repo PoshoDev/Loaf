@@ -1,11 +1,11 @@
-from .utils import CursorTypes, DatabaseTypes, DefaultConfig, parse_sql_url
+from .utils import CursorTypes, DatabaseTypes, DefaultConfig, parse_sql_url, load_file, Creds
 
 
 class Loaf:
     def __init__(
         self,
         url: str = None,
-        file: str = None,
+        file_path: str = None,
         host: str = DefaultConfig.HOST,
         port: int = DefaultConfig.PORT,
         user: str = DefaultConfig.USER,
@@ -15,13 +15,26 @@ class Loaf:
         database_type: DatabaseTypes = DefaultConfig.DATABASE_TYPE,
         rollback_on_error: bool = DefaultConfig.ROLLBACK_ON_ERROR
     ):
-        pass
+        self.creds = self._get_creds(
+            url,
+            file_path,
+            Creds(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                database=database,
+                cursor_type=cursor_type,
+                database_type=database_type,
+                rollback_on_error=rollback_on_error
+            )
+        )
 
     def __del__(self):
         self.conn.close()
 
-    def _get_creds(url, file, host, user, password, database):
+    def _get_creds(url, file_path, creds):
         if url:
-            return parse_sql_url(url)
-        if file:
-            pass
+            return parse_sql_url(url, creds)
+        if file_path:
+            return load_file(file_path, creds)
