@@ -36,6 +36,18 @@ class Loaf:
     def refresh(self):
         self.connection, self.cursor = \
             create_connection_and_cursor(self.creds)
+        
+    def query(
+        self,
+        query: str,
+        file_path: str = None,
+        commit: bool = True,
+        rollback_on_error: bool = None
+    ):
+        # Getting the rollback-on-error.
+        rollback_on_error = rollback_on_error \
+            if rollback_on_error is not None else self.creds.rollback_on_error
+        # If a file is specified, use it.
 
     
         
