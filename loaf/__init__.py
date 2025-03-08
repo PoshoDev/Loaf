@@ -4,16 +4,6 @@ from rich import print as rprint
 
 cursors = ["DICTIONARY", "DEFAULT"]
 modes = ["MySQL", "PostgreSQL", "SQLite"]
-defaults = {
-    "host": socket.gethostbyname(socket.gethostname()),
-    "port": 80, # Default XAMPP Apache server port.
-    "user": "root",
-    "pasw": "",
-    "db": None,
-    "cursor": cursors[0],
-    "mode": modes[0],
-    "rollback_on_error": True
-}
 removables = {
     "start": ['--sql', '--beginsql', '--begin-sql'],
     "end": ['--endsql', '--end-sql']
@@ -23,6 +13,17 @@ removables = {
 class Loaf:
     def __init__(self, file=None, host=None, port=None, user=None, pasw=None, db=None,
                  cursor=None, mode=None, rollback_on_error=None):
+        # HACK: Define defaults here to avoid sockets error:
+        defaults = {
+            "host": socket.gethostbyname(socket.gethostname()),
+            "port": 80, # Default XAMPP Apache server port.
+            "user": "root",
+            "pasw": "",
+            "db": None,
+            "cursor": cursors[0],
+            "mode": modes[0],
+            "rollback_on_error": True
+        }
         # If a file is specified, use it.
         if file is not None:
             # Creating from an INI file.
